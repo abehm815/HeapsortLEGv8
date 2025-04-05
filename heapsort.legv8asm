@@ -1,0 +1,241 @@
+main:
+    ADD X0, XZR, XZR          // Initialize X0 to 0 (base address of the array)
+    ADDI X1, XZR, #512        // Set size (X1) to 512 elements
+    BL fill                   // Fill array with values
+    BL heapsort               // Call heapsort on the array
+    B end                     // End program
+
+// ____________HEAPSORT PROCEDURE__________________________
+heapsort:
+    // Inputs: X0 = array base address | X1 = array size
+    SUBI SP, SP, #8           // Push return address onto stack
+    STUR LR, [SP, #0]
+    BL heapify                // Call heapify to build the initial heap
+    LDUR LR, [SP, #0]         // Restore return address
+    ADDI SP, SP, #8
+
+    ADDI X9, XZR, #1          // i = 1
+
+heapsort_loop:
+    SUBS X10, X9, X1          // Check if i >= size
+    B.GE heapsort_end         // End loop if true
+
+    SUB X11, X1, X9           // X11 = size - i (used to identify last unsorted element)
+
+    // Save registers before swap
+    SUBI SP, SP, #40
+    STUR X9, [SP, #0]
+    STUR X10, [SP, #8]
+    STUR X11, [SP, #16]
+    STUR LR, [SP, #24]
+    STUR X1, [SP, #32]
+
+    LSL X12, X11, #3          // Calculate byte offset: (size - i) * 8
+    ADD X1, X0, X12           // X1 = address of last element
+    BL swap                   // Swap root with last element
+
+    // Restore registers after swap
+    LDUR X9, [SP, #0]
+    LDUR X10, [SP, #8]
+    LDUR X11, [SP, #16]
+    LDUR LR, [SP, #24]
+    LDUR X1, [SP, #32]
+    ADDI SP, SP, #40
+
+    // Save registers before percolate_down
+    SUBI SP, SP, #40
+    STUR X9, [SP, #0]
+    STUR X10, [SP, #8]
+    STUR X11, [SP, #16]
+    STUR LR, [SP, #24]
+    STUR X1, [SP, #32]
+
+    ADD X2, XZR, XZR          // X2 = 0 (starting index for percolate)
+    ADD X1, X11, XZR          // X1 = updated size (after swap)
+    BL perculate_down         // Restore heap property
+
+    // Restore registers
+    LDUR X9, [SP, #0]
+    LDUR X10, [SP, #8]
+    LDUR X11, [SP, #16]
+    LDUR LR, [SP, #24]
+    LDUR X1, [SP, #32]
+    ADDI SP, SP, #40
+
+    ADDI X9, X9, #1           // i++
+    B heapsort_loop           // Repeat loop
+
+heapsort_end:
+    BR LR                     // Return from heapsort
+
+//______________HEAPIFY PROCEDURE___________________________
+heapify:
+    // Inputs: X0 = array base | X1 = size
+    ADDI X9, X1, #1
+    LSR X9, X9, #1            // Start from floor(size / 2)
+
+heapify_loop:
+    CBZ X9, heapify_end       // If i == 0, done
+
+    // Save state
+    SUBI SP, SP, #16
+    STUR X9, [SP, #0]
+    STUR LR, [SP, #8]
+
+    ADD X2, X9, XZR           // X2 = i
+    BL perculate_down         // Fix subtree rooted at i
+
+    // Restore state
+    LDUR LR, [SP, #8]
+    LDUR X9, [SP, #0]
+    ADDI SP, SP, #16
+
+    SUBI X9, X9, #1           // i--
+    B heapify_loop
+
+heapify_end:
+    ADD X2, XZR, XZR          // X2 = 0 (final root fix)
+
+    SUBI SP, SP, #8           // Save return address
+    STUR LR, [SP, #0]
+
+    BL perculate_down         // Final percolate
+
+    LDUR LR, [SP, #0]         // Restore return address
+    ADDI SP, SP, #8
+    BR LR
+
+// ______________PERCULATE DOWN PROCEDURE____________________
+perculate_down:
+    // Inputs: X0 = array base, X1 = size, X2 = index to heapify from
+    LSL X9, X2, #1
+    ADDI X9, X9, #1           // X9 = left child index
+
+perculate_loop:
+    SUBS X10, X9, X1
+    B.GE perculate_end        // If child >= size, done
+
+first_if:
+    ADDI X10, X9, #1
+    SUBS X11, X10, X1
+    B.GE second_if            // If no right child, skip
+
+    // Compare left and right child
+    LSL X10, X9, #3
+    ADD X11, X0, X10
+    LDUR X10, [X11, #0]
+
+    ADDI X11, X9, #1
+    LSL X12, X11, #3
+    ADD X11, X0, X12
+    LDUR X12, [X11, #0]
+
+    SUBS X13, X10, X12
+    B.GE second_if            // If left >= right, skip
+
+    ADDI X9, X9, #1           // Use right child
+
+second_if:
+    // Compare parent with larger child
+    LSL X11, X2, #3
+    ADD X11, X0, X11
+    LDUR X12, [X11, #0]
+
+    LSL X10, X9, #3
+    ADD X11, X0, X10
+    LDUR X10, [X11, #0]
+
+    SUBS X12, X12, X10
+    B.GE restart_loop         // If parent >= child, done
+
+    // Swap needed
+    SUBI SP, SP, #40
+    STUR X0, [SP, #0]
+    STUR X1, [SP, #8]
+    STUR LR, [SP, #16]
+    STUR X9, [SP, #24]
+    STUR X10, [SP, #32]
+
+    // Perform swap
+    ADD X14, X0, XZR
+    LSL X0, X2, #3
+    ADD X0, X14, X0
+    LSL X1, X9, #3
+    ADD X1, X14, X1
+    BL swap
+
+    // Restore state
+    LDUR X0, [SP, #0]
+    LDUR X1, [SP, #8]
+    LDUR LR, [SP, #16]
+    LDUR X9, [SP, #24]
+    LDUR X10, [SP, #32]
+    ADDI SP, SP, #40
+
+restart_loop:
+    ADD X2, X9, XZR           // i = child
+    LSL X9, X2, #1
+    ADDI X9, X9, #1           // child = 2i + 1
+    B perculate_loop
+
+perculate_end:
+    BR LR
+
+// _______________SWAP PROCEDURE_________________
+swap:
+    // Inputs: X0 = addr a, X1 = addr b
+    LDUR X9, [X0, #0]         // X9 = *a
+    LDUR X10, [X1, #0]        // X10 = *b
+    STUR X9, [X1, #0]         // *b = a
+    STUR X10, [X0, #0]        // *a = b
+    BR LR
+
+// _______________FILL PROCEDURE_________________
+fill:
+    // Inputs: X0 = array base | X1 = size
+
+    SUBIS XZR, X1, #2
+    ADDI X9, XZR, #0          // i = 0
+    B.HS fill_loop            // If size >= 2, enter fill loop
+
+check_odd:
+    ANDI X10, X1, #1
+    CBNZ X10, odd_case        // If size is odd, patch single middle value
+    B fill_end
+
+fill_loop:
+    LSR X10, X1, #1           // size / 2
+
+    ADDI X11, X1, #1
+    LSR X11, X11, #1
+    ADDI X12, X9, #1
+    SUB X12, X11, X12
+    LSL X12, X12, #3
+
+    LSL X13, X9, #1
+    ADD X14, X0, X12
+    STUR X13, [X14, #0]       // a[mid - (i + 1)] = i * 2
+
+    ADD X12, X11, X9
+    ADDI X13, X13, #1
+    LSL X12, X12, #3
+    ADD X12, X0, X12
+    STUR X13, [X12, #0]       // a[mid + i] = i * 2 + 1
+
+    ADDI X9, X9, #1
+    SUBS X11, X9, X10
+    B.LT fill_loop
+
+    B check_odd
+
+odd_case:
+    SUBI X10, X1, #1
+    STUR X10, [X0, #0]        // a[0] = size - 1
+    B fill_end
+
+fill_end:
+    BR LR
+
+// _______________END OF PROGRAM_________________
+end:
+    HALT                      // Stop execution
