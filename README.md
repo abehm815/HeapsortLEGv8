@@ -43,4 +43,39 @@ Open a terminal and run the following command:
 ```bash
 ./legv8emul heapsort.legv8asm
 ```
+## Sample Memory Dump Output
+
+Below is an example of what the **LEGv8 emulator's memory dump** looks like after executing the program with an array size of `10`.
+
+Output of `DUMP` After a call to `fill`:
+
+- `fill` initializes the array and fills it with even numbers descending to `0` then odd numbers increasing
+
+```
+Main Memory:
+00000000  00 00 00 00 00 00 00 08  00 00 00 00 00 00 00 06  |................|
+00000010  00 00 00 00 00 00 00 04  00 00 00 00 00 00 00 02  |................|
+00000020  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 01  |................|
+00000030  00 00 00 00 00 00 00 03  00 00 00 00 00 00 00 05  |................|
+00000040  00 00 00 00 00 00 00 07  00 00 00 00 00 00 00 09  |................|
+```
+Output of `DUMP` After a call to `heapsort`:
+
+- `heapsort` then sorts the array in an equivalent algorithm to the provided c code
+
+```
+Main Memory:
+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 01  |................|
+00000010  00 00 00 00 00 00 00 02  00 00 00 00 00 00 00 03  |................|
+00000020  00 00 00 00 00 00 00 04  00 00 00 00 00 00 00 05  |................|
+00000030  00 00 00 00 00 00 00 06  00 00 00 00 00 00 00 07  |................|
+00000040  00 00 00 00 00 00 00 08  00 00 00 00 00 00 00 09  |................|
+```
+
+
+
+
+
+
+
 
