@@ -30,6 +30,17 @@ void heapsort(uint64_t *a, uint64_t s);
 
 ## File Structure
 
-- `legv8emul`: The custom LEGv8 emulator provided by course staff. Executes LEGv8 assembly programs on Linux systems, including Pyrite. No compilation required.
+- `legv8emul`: The custom LEGv8 emulator provided by course staff. Executes LEGv8 assembly programs on Linux systems, no compilation required.
 - `heapsort.c`: The original C implementation of the Heapsort algorithm. Served as the high-level source code that was manually translated into LEGv8.
 - `heapsort.legv8asm`: The hand-written LEGv8 assembly implementation of `heapsort.c`, simulating what a compiler would generate at the assembly level.
+
+## How to Run
+
+You can execute the assembly program using the LEGv8 emulator provided. The emulator is a statically-linked binary and works on any Linux-compatible environment, including WSL (Windows Subsystem for Linux).
+
+Open a terminal and run the following command:
+
+```bash
+./legv8emul heapsort.legv8asm
+```
+
