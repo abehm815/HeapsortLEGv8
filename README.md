@@ -30,9 +30,9 @@ void heapsort(uint64_t *a, uint64_t s);
 
 ## File Structure
 
-- `legv8emul`: The custom LEGv8 emulator provided by course staff. Executes LEGv8 assembly programs on Linux systems, no compilation required.
-- `heapsort.c`: The original C implementation of the Heapsort algorithm. Served as the high-level source code that was manually translated into LEGv8.
-- `heapsort.legv8asm`: The hand-written LEGv8 assembly implementation of `heapsort.c`, simulating what a compiler would generate at the assembly level.
+- `legv8emul`: The custom LEGv8 emulator provided by course staff. Executes LEGv8 assembly programs on Linux systems, no compilation required. (Developed by Iowa State University Staff)
+- `heapsort.c`: The original C implementation of the Heapsort algorithm. Served as the high-level source code that was manually translated into LEGv8. (Developed by Iowa State University Staff)
+- `heapsort.legv8asm`: The hand-written LEGv8 assembly implementation of `heapsort.c`, simulating what a compiler would generate at the assembly level. (Developed by Alex Behm)
 
 ## How to Run
 
