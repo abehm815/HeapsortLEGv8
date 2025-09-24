@@ -18,7 +18,7 @@ This project is a **manual translation of a C-based Heapsort implementation** in
 
 ## Project Goal
 
-To implement and test a fully functioning version of **Heapsort** in LEGv8 assembly, equivalent in logic and behavior to the following C codebase:
+To implement and test a fully functioning version of **Heapsort** in LEGv8 assembly, equivalent in logic and behavior to the following C implementation:
 
 ```c
 void fill(uint64_t *a, uint64_t s);
